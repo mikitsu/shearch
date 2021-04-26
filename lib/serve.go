@@ -11,14 +11,8 @@ func Serve() {
   conf := loadConfig()
   listener := getListener(conf.Addr)
   log.Println("listening on", listener.Addr())
-  http.Serve(listener, conf)
-}
-
-func (conf Config) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-  query := r.URL.Query().Get("q")
-  redirect := conf.getShortcutRedirect(query)
-  w.Header().Add("Location", redirect)
-  w.WriteHeader(http.StatusTemporaryRedirect)
+  mux := conf.getServeMux()
+  http.Serve(listener, mux)
 }
 
 func getListener (laddr string) net.Listener {
@@ -34,4 +28,10 @@ func getListener (laddr string) net.Listener {
     log.Fatal(err)
   }
   return listener
+}
+
+func (conf Config) getServeMux() *http.ServeMux {
+  mux := http.NewServeMux()
+  mux.HandleFunc("/", conf.handleQuery)
+  return mux
 }

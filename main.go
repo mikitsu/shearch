@@ -4,6 +4,6 @@ import (
   "github.com/mik2k2/shearch/lib"
 )
 
-func main() 
+func main() {
   lib.Serve()
 }
