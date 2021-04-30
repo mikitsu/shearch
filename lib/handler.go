@@ -7,16 +7,27 @@ import (
   "net/url"
 )
 
+func (conf *Config) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+  switch r.Method {
+  case http.MethodGet:
+    conf.handleQuery(w, r)
+  case http.MethodPut:
+    conf.handleConfig(w, r)
+  case http.MethodPost:
+    conf.handleShortcut(w, r)
+  }
+}
 
-func (conf *variableConfig) handleQuery(w http.ResponseWriter, r *http.Request) {
+
+func (conf *Config) handleQuery(w http.ResponseWriter, r *http.Request) {
   query := r.URL.Query().Get("q")
   redirect := conf.getShortcutRedirect(query)
   w.Header().Add("Location", redirect)
   w.WriteHeader(http.StatusTemporaryRedirect)
 }
 
-func (conf variableConfig) getShortcutRedirect(query string) string {
-  default_response := conf.defaultRedirect + url.QueryEscape(query)
+func (conf Config) getShortcutRedirect(query string) string {
+  default_response := fmt.Sprintf(conf.defaultRedirect, url.QueryEscape(query))
   if ! strings.HasPrefix(query, conf.shortcutPrefix){
     return default_response
   }
@@ -30,4 +41,27 @@ func (conf variableConfig) getShortcutRedirect(query string) string {
     }
   }
   return default_response
+}
+
+func (conf *Config) handleConfig(w http.ResponseWriter, r *http.Request) {
+  query := r.URL.Query()
+  if newPrefix := query.Get("prefix"); newPrefix != "" {
+    conf.shortcutPrefix = newPrefix
+  }
+  if newRedirect := query.Get("redirect"); newRedirect != "" {
+    conf.defaultRedirect = newRedirect
+  }
+  if newSeparator := query.Get("separator"); newSeparator != "" {
+    conf.shortcutSeparator = newSeparator
+  }
+}
+
+func (conf *Config) handleShortcut(w http.ResponseWriter, r *http.Request) {
+  for k, v := range r.URL.Query() {
+    newDest := v[0]
+    if ! strings.Contains(newDest, "%s") {  // convenienc
+      newDest += "%s"
+    }
+    conf.shortcuts[k] = newDest
+  }
 }

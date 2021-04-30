@@ -1,44 +1,17 @@
 package lib
 
-import (
-  "log"
-  "net"
-  "net/http"
-  "strings"
-)
+import "strings"
 
-type FixedConfig struct {
-  Addr string
-  ConfigPath string
-  ShortcutPath string
-}
-
-type variableConfig struct {
+type Config struct {
   shortcutPrefix string
   defaultRedirect string
   shortcutSeparator string
   shortcuts map[string]string
 }
 
-func (fconf FixedConfig) GetListener() net.Listener {
-  var lnet string
-  laddr := fconf.Addr
-  if strings.HasPrefix(laddr, "unix:") {
-    laddr = laddr[5:]
-    lnet = "unix"
-  } else {
-    lnet = "tcp"
+func GetConfig(shortcutPrefix, defaultRedirect, shortcutSeparator string) Config {
+  if ! strings.Contains(defaultRedirect, "%s") {
+    defaultRedirect += "%s"
   }
-  listener, err := net.Listen(lnet, laddr)
-  if err != nil {
-    log.Fatal(err)
-  }
-  return listener
-}
-
-func (fconf FixedConfig) GetServeMux() *http.ServeMux {
-  vconf := variableConfig{"!", "http://localhost/", " ", map[string]string{}}
-  mux := http.NewServeMux()
-  mux.HandleFunc("/", vconf.handleQuery)
-  return mux
+  return Config{shortcutPrefix, defaultRedirect, shortcutSeparator, map[string]string{}}
 }
