@@ -27,20 +27,24 @@ func (conf *Config) handleQuery(w http.ResponseWriter, r *http.Request) {
 }
 
 func (conf Config) getShortcutRedirect(query string) string {
-  default_response := fmt.Sprintf(conf.defaultRedirect, url.QueryEscape(query))
-  if ! strings.HasPrefix(query, conf.shortcutPrefix){
-    return default_response
-  }
-  query = query[len(conf.shortcutPrefix):]
-  split_query := strings.SplitN(query, conf.shortcutSeparator, 2)
-  cut := split_query[0]
-  query = split_query[1]
-  for key, value := range conf.shortcuts {
-    if cut == key {
-      return fmt.Sprintf(value, url.QueryEscape(query))
+  response := conf.defaultRedirect
+  if strings.HasPrefix(query, conf.shortcutPrefix){
+    query = query[len(conf.shortcutPrefix):]
+    split_query := strings.SplitN(query, conf.shortcutSeparator, 2)
+    cut := split_query[0]
+    query = split_query[1]
+    for key, value := range conf.shortcuts {
+      if cut == key {
+        response = value
+        break
+      }
     }
   }
-  return default_response
+  if strings.Contains(response, "%s") {
+    return fmt.Sprintf(response, url.QueryEscape(query))
+  } else {
+    return response + url.QueryEscape(query)
+  }
 }
 
 func (conf *Config) handleConfig(w http.ResponseWriter, r *http.Request) {
@@ -59,9 +63,6 @@ func (conf *Config) handleConfig(w http.ResponseWriter, r *http.Request) {
 func (conf *Config) handleShortcut(w http.ResponseWriter, r *http.Request) {
   for k, v := range r.URL.Query() {
     newDest := v[0]
-    if ! strings.Contains(newDest, "%s") {  // convenienc
-      newDest += "%s"
-    }
     conf.shortcuts[k] = newDest
   }
 }
