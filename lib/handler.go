@@ -29,13 +29,13 @@ func (conf *Config) handleQuery(w http.ResponseWriter, r *http.Request) {
 func (conf Config) getShortcutRedirect(query string) string {
   response := conf.defaultRedirect
   if strings.HasPrefix(query, conf.shortcutPrefix){
-    query = query[len(conf.shortcutPrefix):]
-    split_query := strings.SplitN(query, conf.shortcutSeparator, 2)
+    split_query := strings.SplitN(query[len(conf.shortcutPrefix):], conf.shortcutSeparator, 2)
     cut := split_query[0]
-    query = split_query[1]
+    part_query := split_query[1]
     for key, value := range conf.shortcuts {
       if cut == key {
         response = value
+        query = part_query
         break
       }
     }
