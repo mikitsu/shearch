@@ -8,4 +8,4 @@ RUN CGO_ENABLED=0 go build .
 FROM alpine:latest
 
 COPY --from=builder /tmp/build/shearch /bin
-ENTRYPOINT /bin/shearch
+ENTRYPOINT ["/bin/shearch"]
