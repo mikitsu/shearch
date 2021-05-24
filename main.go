@@ -33,7 +33,7 @@ func getListener(laddr string) net.Listener {
 }
 
 func getConfig() (string, lib.Config) {
-  var laddr, prefix, redirect, separator string
+  var laddr, prefix, redirect, separator, opensearch string
   flag.StringVar(&laddr, "listen", "127.0.0.1:8080",
                  "listen on; may also be a unix:/domain.socket")
   flag.StringVar(&prefix, "prefix", "!", "default shortcut prefix")
@@ -41,6 +41,7 @@ func getConfig() (string, lib.Config) {
                  "default redirect location if no shortcut matches")
   flag.StringVar(&separator, "separator", " ",
                  "default separator between shortcut and query")
+  flag.StringVar(&opensearch, "url", "", "URL shearch is available on (for opensearch)")
   flag.Parse()
-  return laddr, lib.GetConfig(prefix, redirect, separator)
+  return laddr, lib.GetConfig(prefix, redirect, separator, opensearch)
 }

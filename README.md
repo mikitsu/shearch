@@ -15,6 +15,7 @@ Run the binary with the options you need.
 You can then issue requests to wherever you are listening:
 
 - GET requests will examine the "q" parameter and handle it according to redirect rules
+- GET requests without "q" paramter with an "opensearch" parameter will return opensearch xml
 - POST requests will update the redirect rules: every query paramter (in the URL)
   will add/update the corresponding shortcut.
 - PUT requests will update the basic configuration (prefix, separator and redirect)

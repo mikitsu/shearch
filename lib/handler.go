@@ -10,7 +10,15 @@ import (
 func (conf *Config) ServeHTTP(w http.ResponseWriter, r *http.Request) {
   switch r.Method {
   case http.MethodGet:
-    conf.handleQuery(w, r)
+    if _, ok := r.URL.Query()["q"]; ok {
+      conf.handleQuery(w, r)
+    } else if _, ok := r.URL.Query()["opensearch"]; ok && conf.opensearchUrl != "" {
+      w.Header().Add("Content-Type", "text/html")
+      w.Write([]byte(opensearchLinkHTML))
+    } else if _, ok := r.URL.Query()["opensearchxml"]; ok && conf.opensearchUrl != "" {
+      w.Header().Add("Content-Type", "application/opensearchdescription+xml")
+      w.Write([]byte(fmt.Sprintf(opensearchTemplate, conf.opensearchUrl)))
+    }
   case http.MethodPut:
     conf.handleConfig(w, r)
   case http.MethodPost:
@@ -30,13 +38,15 @@ func (conf Config) getShortcutRedirect(query string) string {
   response := conf.defaultRedirect
   if strings.HasPrefix(query, conf.shortcutPrefix){
     split_query := strings.SplitN(query[len(conf.shortcutPrefix):], conf.shortcutSeparator, 2)
-    cut := split_query[0]
-    part_query := split_query[1]
-    for key, value := range conf.shortcuts {
-      if cut == key {
-        response = value
-        query = part_query
-        break
+    if len(split_query) == 2 {
+      cut := split_query[0]
+      part_query := split_query[1]
+      for key, value := range conf.shortcuts {
+        if cut == key {
+          response = value
+          query = part_query
+          break
+        }
       }
     }
   }
@@ -65,4 +75,9 @@ func (conf *Config) handleShortcut(w http.ResponseWriter, r *http.Request) {
     newDest := v[0]
     conf.shortcuts[k] = newDest
   }
+}
+
+func (conf Config) handleOpensearch(w http.ResponseWriter, r *http.Request) {
+  w.Header().Add("Content-Type", "application/opensearchdescription+xml")
+  w.Write([]byte(fmt.Sprintf(opensearchTemplate, conf.opensearchUrl)))
 }
