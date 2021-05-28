@@ -1,11 +1,11 @@
 package lib
 
 type Config struct {
-  shortcutPrefix string
-  defaultRedirect string
-  shortcutSeparator string
-  opensearchUrl string
-  shortcuts map[string]string
+	shortcutPrefix    string
+	defaultRedirect   string
+	shortcutSeparator string
+	opensearchUrl     string
+	shortcuts         map[string]string
 }
 
 const opensearchTemplate = `<?xml version="1.0" encoding="UTF-8"?>
@@ -20,5 +20,5 @@ const opensearchLinkHTML = `<!DOCTYPE html>
 </head></html>`
 
 func GetConfig(shortcutPrefix, defaultRedirect, shortcutSeparator, opensearchUrl string) Config {
-  return Config{shortcutPrefix, defaultRedirect, shortcutSeparator, opensearchUrl, map[string]string{}}
+	return Config{shortcutPrefix, defaultRedirect, shortcutSeparator, opensearchUrl, map[string]string{}}
 }
