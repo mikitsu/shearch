@@ -15,11 +15,13 @@ Run the binary with the options you need.
 You can then issue requests to wherever you are listening:
 
 - GET requests will examine the "q" parameter and handle it according to redirect rules
-- GET requests without "q" paramter with an "opensearch" parameter will return opensearch xml
+- GET requests without "q" paramter with an "opensearch" parameter will return an HTML page with a ``<link rel="search">``,
+  which should add a search engine to browsers
 - POST requests will update the redirect rules: every query paramter (in the URL)
   will add/update the corresponding shortcut.
-- PUT requests will update the basic configuration (prefix, separator and redirect)
-  via query parameters
+- DELETE requests will remove saved shortcuts for the given path and all subpaths
+
+Every path saves shortcuts separately and looks up undefined shortcuts in parent components recursively.
 
 ### how a shortcut is matched
 
