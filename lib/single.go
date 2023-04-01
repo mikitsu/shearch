@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
 )
 
 const opensearchTemplate = `<?xml version="1.0" encoding="UTF-8"?>
@@ -20,6 +21,7 @@ const opensearchLinkHTML = `<!DOCTYPE html>
 
 type singleConfig struct {
 	shortcuts map[string]string
+	childrenLock sync.RWMutex
 	children  map[string]*singleConfig
 	parent    *singleConfig
 	main      *MainConfig

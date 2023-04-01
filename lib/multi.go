@@ -46,10 +46,14 @@ func (mc *MainConfig) resolvePath(components []string) *singleConfig {
 	cur := mc.rootSingle
 	for _, part := range components {
 		if part != "" {
+			cur.childrenLock.RLock()
 			next, ok := cur.children[part]
+			cur.childrenLock.RUnlock()
 			if !ok {
 				next = &singleConfig{parent: cur, main: mc, shortcuts: map[string]string{}, children: map[string]*singleConfig{}}
+				cur.childrenLock.Lock()
 				cur.children[part] = next
+				cur.childrenLock.Unlock()
 			}
 			cur = next
 		}
