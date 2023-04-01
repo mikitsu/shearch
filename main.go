@@ -8,6 +8,8 @@ import (
 	"os"
 	"strings"
 
+	"git.sr.ht/~mikitsu/sdnet"
+
 	"github.com/mik2k2/shearch/lib"
 )
 
@@ -26,7 +28,7 @@ func getListener(laddr string, sock_mode uint) net.Listener {
 	} else {
 		lnet = "tcp"
 	}
-	listener, err := net.Listen(lnet, laddr)
+	listener, err := sdnet.Listen(lnet, laddr)
 	if err != nil {
 		log.Fatal(err)
 	}
